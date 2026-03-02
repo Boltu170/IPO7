@@ -1,0 +1,754 @@
+<!DOCTYPE html><html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Financial Management and Markets — ARU Lecture 7</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:#f5f2e8!important;font-family:'Source Sans 3',Arial,sans-serif;color:#1a2744;}
+#appHeader{background:#1a2744;color:#fff;padding:10px 18px;display:none;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 6px 32px rgba(26,39,68,.18);}
+.hlogo{font-family:'Playfair Display',serif;font-size:18px;color:#c9a84c;letter-spacing:1px;}
+.htitle{font-size:12px;opacity:.8;margin-top:2px;}
+.htimer{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:7px;padding:5px 12px;font-size:17px;font-weight:700;font-family:monospace;letter-spacing:2px;color:#fff;}
+.htimer.warn{color:#f1c40f;}.htimer.danger{color:#e74c3c;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+.hbadge{background:#c9a84c;color:#1a2744;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;}
+#progressBar{background:#243358;padding:8px 18px;display:none;}
+.ptrack{background:rgba(255,255,255,.18);border-radius:8px;height:7px;overflow:hidden;}
+.pfill{height:100%;background:linear-gradient(90deg,#c9a84c,#e8c96a);border-radius:8px;transition:width .5s;}
+.plabels{display:flex;justify-content:space-between;margin-top:5px;}
+.plabel{font-size:10px;color:rgba(255,255,255,.55);font-weight:500;}
+.plabel.done{color:#c9a84c;}.plabel.cur{color:#fff;font-weight:700;}
+.screen{display:none;padding:16px;max-width:860px;margin:0 auto;}
+.screen.active{display:block;}
+.card{background:#fff;border-radius:14px;box-shadow:0 6px 32px rgba(26,39,68,.18);border-top:5px solid #1a2744;padding:32px 24px;margin-top:24px;}
+.card h1{font-family:'Playfair Display',serif;font-size:26px;color:#1a2744;margin-bottom:6px;text-align:center;}
+.subtitle{text-align:center;color:#666;font-size:15px;margin-bottom:24px;}
+.mod-pills{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:20px 0;}
+@media(max-width:560px){.mod-pills{grid-template-columns:repeat(3,1fr);}}
+.mpill{background:#f5f2e8;border:2px solid #ede9d8;border-radius:9px;padding:10px 6px;text-align:center;font-size:11px;font-weight:600;color:#1a2744;}
+.mpill span{display:block;font-size:17px;font-weight:700;color:#c9a84c;margin-bottom:3px;}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;}
+@media(max-width:480px){.rules{grid-template-columns:1fr;}}
+.rule{background:#f5f2e8;border-radius:8px;padding:10px 12px;font-size:13px;display:flex;gap:9px;align-items:flex-start;}
+.rule-icon{font-size:17px;flex-shrink:0;}
+.name-row{display:flex;gap:10px;max-width:400px;margin:0 auto 12px;}
+.name-in{flex:1;padding:13px 16px;border:2px solid #ede9d8;border-radius:9px;font-size:15px;font-family:inherit;outline:none;transition:border .2s;}
+.name-in:focus{border-color:#1a2744;}
+.err{color:#c0392b;font-size:12px;text-align:center;margin-top:4px;display:none;}
+.btn{display:inline-block;padding:12px 26px;border-radius:9px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all .18s;}
+.btn-navy{background:#1a2744;color:#fff;}.btn-navy:hover{background:#243358;transform:translateY(-1px);}
+.btn-navy:disabled{background:#aaa;cursor:not-allowed;transform:none;}
+.btn-gold{background:#c9a84c;color:#1a2744;}.btn-gold:hover{background:#e8c96a;}
+.btn-sm{padding:7px 16px;font-size:13px;}.btn-hidden{display:none!important;}
+.mod-head{background:#1a2744;color:#fff;border-radius:13px 13px 0 0;padding:20px 22px;}
+.mod-num{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#c9a84c;font-weight:700;margin-bottom:3px;}
+.mod-title{font-family:'Playfair Display',serif;font-size:22px;}
+.mod-meta{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px;font-size:12px;opacity:.75;}
+.mod-body{background:#fff;border-radius:0 0 13px 13px;padding:22px;box-shadow:0 3px 16px rgba(26,39,68,.14);margin-bottom:20px;}
+.sbar{background:#f5f2e8;border-radius:9px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border:1px solid #ede9d8;}
+.sval{font-size:20px;font-weight:700;color:#1a2744;}.slabel{font-size:11px;color:#999;margin-bottom:1px;}
+.instruct{background:#e8f4fd;border:1px solid #b8d4f0;border-radius:8px;padding:11px 14px;font-size:13px;margin-bottom:16px;color:#1a4f6e;line-height:1.5;}
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:54px;background:#e8e4d4;border:2px dashed #c8c4b4;border-radius:9px;padding:12px;margin-bottom:18px;}
+.dcard{background:#1a2744!important;color:#fff!important;padding:9px 13px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;user-select:none;transition:all .18s;border:2px solid transparent;position:relative;touch-action:none;}
+.dcard:hover{transform:translateY(-2px);box-shadow:0 3px 16px rgba(26,39,68,.25);}
+.dcard.selected-card{border:2px solid #c9a84c!important;background:#2a3d6a!important;transform:translateY(-2px);}
+.dcard.placed-correct{background:#1e8449!important;color:#fff!important;cursor:default;border-color:#1e8449!important;}
+.dcard.placed-revealed{background:#b7860a!important;color:#fff!important;cursor:default;border-color:#c9a84c!important;opacity:.85;}
+.dcard.placed-wrong{background:#c0392b!important;color:#fff!important;animation:shake .4s;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.zones{display:grid;gap:13px;}
+.zones-2{grid-template-columns:1fr 1fr;}.zones-3{grid-template-columns:1fr 1fr 1fr;}.zones-4{grid-template-columns:1fr 1fr;}
+@media(max-width:500px){.zones-2,.zones-3,.zones-4{grid-template-columns:1fr;}}
+.dzone{border:2px dashed #1a2744;border-radius:9px;padding:12px;min-height:90px;transition:all .18s;cursor:pointer;}
+.dzone:hover,.dzone.hover-active{background:rgba(26,39,68,.06);border-color:#c9a84c;border-style:solid;}
+.dzone-label{font-weight:700;font-size:12px;color:#1a2744;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:7px;pointer-events:none;}
+.zone-items{display:flex;flex-wrap:wrap;gap:7px;min-height:36px;pointer-events:none;}
+.know-box{margin-bottom:18px;border-radius:10px;overflow:hidden;border:2px solid #c9a84c;box-shadow:0 2px 10px rgba(201,168,76,.15);}
+.know-toggle{background:linear-gradient(135deg,#1a2744 0%,#243358 100%);color:#fff;padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;user-select:none;}
+.know-toggle:hover{background:linear-gradient(135deg,#243358 0%,#2e4470 100%);}
+.know-icon{font-size:16px;margin-right:8px;}
+.know-badge{background:#c9a84c;color:#1a2744;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;}
+.know-arrow{font-size:11px;color:#c9a84c;margin-left:8px;transition:transform .3s;display:inline-block;}
+.know-body{background:#fffdf4;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;}
+.know-body.open{max-height:2000px;padding:16px 18px;}
+.know-body h4{font-size:13px;font-weight:700;color:#1a2744;margin:14px 0 6px;border-bottom:1px solid #ede9d8;padding-bottom:4px;}
+.know-body h4:first-child{margin-top:0;}
+.know-body p,.know-body li{font-size:13px;color:#333;line-height:1.75;}
+.know-body ul{padding-left:18px;margin:6px 0 10px;}
+.know-body li{margin-bottom:4px;}
+.kt{display:inline-block;background:#1a2744;color:#c9a84c;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-right:5px;vertical-align:middle;}
+.kw{background:#fff3cd;border-left:4px solid #c9a84c;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#5d4200;margin:8px 0;line-height:1.6;}
+.ke{background:#e8f8ef;border-left:4px solid #1e8449;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#145a32;margin:8px 0;line-height:1.6;}
+.kf{font-family:'Courier New',monospace;background:#1a2744;color:#e0e8ff;padding:12px 14px;border-radius:7px;font-size:12px;line-height:2;margin:8px 0;}
+.kf b{color:#c9a84c;}
+.review-box{background:#fff8e1;border:2px solid #c9a84c;border-radius:9px;padding:14px 16px;margin:14px 0;display:none;}
+.review-box.show{display:block;}
+.review-box h4{color:#1a2744;font-size:13px;font-weight:700;margin-bottom:8px;}
+.review-item{font-size:12px;color:#7b5800;padding:5px 0;border-bottom:1px solid #f0d890;line-height:1.5;}
+.review-item:last-child{border-bottom:none;}
+.hint-box{background:#fff8e1;border:1px solid #f0c040;border-radius:7px;padding:10px 14px;font-size:13px;margin:10px 0;display:none;gap:8px;align-items:flex-start;line-height:1.5;}
+.hint-box.show{display:flex;}
+.fb{border-radius:7px;padding:11px 14px;font-size:13px;font-weight:600;margin:10px 0;display:none;gap:8px;align-items:center;line-height:1.5;}
+.fb.show{display:flex;}
+.fb-ok{background:#e8f8ef;color:#145a32;border:1px solid #82d0a0;}
+.fb-err{background:#fde8e6;color:#7b241c;border:1px solid #c0392b;}
+.fb-warn{background:#fff8e1;color:#7b5800;border:1px solid #c9a84c;}
+.pts-pop{position:fixed;right:24px;top:80px;font-size:22px;font-weight:700;color:#1e8449;pointer-events:none;opacity:0;transition:none;z-index:9999;}
+.tfq{background:#f5f2e8;border-radius:9px;padding:14px 16px;margin-bottom:12px;border:2px solid #ede9d8;transition:all .2s;}
+.tfq.ok{border-color:#1e8449;background:#e8f8ef;}.tfq.wrong{border-color:#c0392b;background:#fde8e6;}
+.tfqtext{font-size:14px;font-weight:600;margin-bottom:10px;line-height:1.5;}
+.tfbtns{display:flex;gap:9px;}
+.tfbtn{padding:7px 20px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:all .18s;font-family:inherit;}
+.tfbtn-t{background:#e8f8ef;color:#1e8449;border-color:#1e8449;}.tfbtn-t:hover{background:#1e8449;color:#fff;}
+.tfbtn-f{background:#fde8e6;color:#c0392b;border-color:#c0392b;}.tfbtn-f:hover{background:#c0392b;color:#fff;}
+.tfbtn:disabled{opacity:.5;cursor:not-allowed;}
+.tfbtn.sel-ok{background:#1e8449;color:#fff;}.tfbtn.sel-err{background:#c0392b;color:#fff;}
+.tf-gate{background:#1a2744;color:#fff;border-radius:9px;padding:13px 16px;text-align:center;margin:14px 0;font-size:14px;}
+.pl-wrap{background:#f9f9f9;border:2px solid #ede9d8;border-radius:9px;padding:16px;font-family:'Courier New',monospace;font-size:13px;}
+.pl-row{display:flex;justify-content:space-between;padding:5px 7px;border-radius:5px;line-height:1.6;}
+.pl-row.clickable{cursor:pointer;border:1px dashed transparent;}
+.pl-row.clickable:hover{background:rgba(201,168,76,.15);border-color:#c9a84c;}
+.pl-row.sel-err{background:#fff3cd;border:1px solid #f0c040;}
+.pl-row.conf-err{background:#fde8e6;border:1px solid #c0392b;}
+.pl-row.conf-ok{background:#e8f8ef;border:1px solid #1e8449;}
+.pl-sep{border-top:1px solid #ccc;margin-top:3px;font-weight:700;}
+.err-opts{display:none;gap:7px;flex-wrap:wrap;margin:7px 0 14px;padding:10px;background:#fff8e1;border-radius:7px;}
+.err-opts.show{display:flex;}
+.err-opt{padding:5px 12px;border-radius:6px;border:2px solid #ede9d8;background:#fff;font-size:12px;cursor:pointer;font-family:inherit;}
+.err-opt:hover{border-color:#1a2744;background:#f5f2e8;}
+.match-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:520px){.match-wrap{grid-template-columns:1fr;}}
+.match-col-label{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:8px;text-align:center;}
+.mterms,.mdefs{display:flex;flex-direction:column;gap:7px;}
+.mterm{background:#1a2744;color:#fff;padding:9px 12px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;border:2px solid transparent;text-align:center;}
+.mterm:hover{transform:translateY(-1px);}.mterm.sel{border-color:#c9a84c;background:#2a3d6a;}
+.mterm.matched{background:#1e8449;cursor:default;}.mterm.match-revealed{background:#b7860a;cursor:default;}
+.mterm.match-err{background:#c0392b;animation:shake .4s;}
+.mdef{background:#f5f2e8;border:2px solid #ede9d8;padding:9px 12px;border-radius:7px;font-size:12px;cursor:pointer;transition:all .18s;line-height:1.4;}
+.mdef:hover{border-color:#1a2744;}.mdef.sel{border-color:#c9a84c;background:#fff8e1;}
+.mdef.matched{border-color:#1e8449;background:#e8f8ef;cursor:default;}
+.mdef.match-revealed{border-color:#c9a84c;background:#fff8e1;cursor:default;}
+.mdef.match-err{border-color:#c0392b;animation:shake .4s;}
+.calc-step{background:#f5f2e8;border-radius:11px;padding:18px;margin-bottom:14px;border:2px solid #ede9d8;transition:all .3s;}
+.calc-step.locked{opacity:.45;pointer-events:none;}.calc-step.active-step{border-color:#1a2744;}
+.calc-step.done-step{border-color:#1e8449;background:#e8f8ef;}
+.cstep-num{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#c9a84c;font-weight:700;margin-bottom:4px;}
+.cstep-title{font-size:15px;font-weight:700;color:#1a2744;margin-bottom:10px;}
+.formula{background:#1a2744;color:#fff;border-radius:7px;padding:9px 12px;font-family:'Courier New',monospace;font-size:12px;margin-bottom:12px;}
+.cinput-row{display:flex;gap:9px;align-items:center;}
+.cinput{flex:1;padding:11px 14px;border:2px solid #ede9d8;border-radius:7px;font-size:15px;font-family:inherit;outline:none;transition:border .2s;}
+.cinput:focus{border-color:#1a2744;}.cinput.ok{border-color:#1e8449;background:#e8f8ef;}.cinput.err{border-color:#c0392b;}
+.scenario-q{background:#1a2744;color:#fff;border-radius:9px;padding:16px 18px;margin-bottom:14px;font-size:14px;line-height:1.6;}
+.sopts{display:flex;flex-direction:column;gap:9px;}
+.sopt{background:#f5f2e8;border:2px solid #ede9d8;border-radius:9px;padding:12px 16px;cursor:pointer;transition:all .18s;font-size:13px;font-weight:500;text-align:left;font-family:inherit;}
+.sopt:hover{border-color:#1a2744;background:#fff;}
+.sopt.ok{border-color:#1e8449;background:#e8f8ef;cursor:default;}
+.sopt.err{border-color:#c0392b;background:#fde8e6;cursor:default;}
+.sopt:disabled{pointer-events:none;}
+.lb{background:#fff;border-radius:11px;padding:18px;box-shadow:0 3px 16px rgba(26,39,68,.14);margin-top:20px;}
+.lb-title{font-family:'Playfair Display',serif;font-size:17px;color:#1a2744;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
+.lb-row{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:7px;margin-bottom:5px;background:#f5f2e8;}
+.lb-row.me{background:rgba(201,168,76,.18);border:1px solid #c9a84c;}
+.lb-rank{font-weight:700;font-size:15px;min-width:26px;}.lb-name{flex:1;font-weight:600;font-size:13px;}
+.lb-mod{font-size:11px;color:#999;}.lb-score{font-weight:700;font-size:15px;color:#1a2744;}
+.cert{background:#fff;border:7px double #c9a84c;border-radius:14px;padding:32px;margin:20px 0;box-shadow:0 6px 32px rgba(26,39,68,.18);text-align:center;}
+.cert-logo{font-family:'Playfair Display',serif;font-size:22px;color:#c9a84c;}
+.cert-tag{font-size:12px;text-transform:uppercase;letter-spacing:3px;color:#888;margin:6px 0 16px;}
+.cert-name{font-family:'Playfair Display',serif;font-size:30px;color:#1a2744;}
+.cert-text{font-size:14px;color:#555;margin:10px 0 18px;line-height:1.6;}
+.cert-score{font-size:48px;font-weight:700;color:#c9a84c;}.cert-score-lbl{font-size:13px;color:#888;}
+.final-mods{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0;}
+@media(max-width:480px){.final-mods{grid-template-columns:repeat(3,1fr);}}
+.fmod{background:#fff;border-radius:9px;padding:13px 8px;text-align:center;box-shadow:0 3px 16px rgba(26,39,68,.14);border-top:4px solid #1a2744;}
+.fmod-n{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;}
+.fmod-s{font-size:26px;font-weight:700;color:#1a2744;}.fmod-m{font-size:11px;color:#bbb;}
+.summary-box{background:#1a2744;color:#fff;border-radius:11px;padding:18px;margin-top:20px;}
+.summary-box h3{font-family:'Playfair Display',serif;font-size:17px;margin-bottom:10px;}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:12px;line-height:1.6;}
+#dashView{display:none;padding:20px;max-width:1000px;margin:0 auto;}
+.dash-head{background:#1a2744;color:#fff;border-radius:11px;padding:18px 22px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;}
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+@media(max-width:600px){.dash-stats{grid-template-columns:repeat(2,1fr);}}
+.dstat{background:#fff;border-radius:9px;padding:14px 16px;box-shadow:0 3px 16px rgba(26,39,68,.14);text-align:center;}
+.dstat-n{font-size:32px;font-weight:700;color:#1a2744;}.dstat-l{font-size:12px;color:#888;}
+.dash-tbl{background:#fff;border-radius:11px;box-shadow:0 3px 16px rgba(26,39,68,.14);overflow:hidden;}
+.dash-tbl table{width:100%;border-collapse:collapse;}
+.dash-tbl th{background:#1a2744;color:#fff;padding:10px 14px;text-align:left;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+.dash-tbl td{padding:11px 14px;border-bottom:1px solid #f5f2e8;font-size:13px;}
+.dash-tbl tr:hover td{background:#f5f2e8;}.dash-tbl tr.stall td{background:#fff3cd;}
+.mbadge{display:inline-block;background:#1a2744;color:#fff;border-radius:10px;padding:2px 9px;font-size:11px;font-weight:600;}
+.sflag{background:#c0392b;color:#fff;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:600;}
+.nudge-btn{background:#c9a84c;color:#1a2744;border:none;border-radius:7px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;}
+#nudge{position:fixed;top:0;left:0;right:0;background:#c9a84c;color:#1a2744;text-align:center;padding:13px;font-size:15px;font-weight:700;z-index:9999;transform:translateY(-100%);transition:transform .4s;}
+#nudge.show{transform:translateY(0);}
+.divider{height:1px;background:#ede9d8;margin:18px 0;}
+</style>
+</head>
+<body>
+<div id="nudge">📣 Keep going — stay focused and complete the module!</div>
+<div id="ptsPop" class="pts-pop"></div>
+<header id="appHeader">
+  <div><div class="hlogo">a.r.u.</div><div class="htitle">Financial Management &amp; Markets</div></div>
+  <div style="display:flex;gap:14px;align-items:center;">
+    <div class="htimer" id="timerEl">60:00</div>
+    <div class="hbadge" id="badgeEl">Student</div>
+  </div>
+</header>
+<div id="progressBar">
+  <div class="ptrack"><div class="pfill" id="pfill" style="width:0%"></div></div>
+  <div class="plabels">
+    <span class="plabel" id="pl0">Module 1</span><span class="plabel" id="pl1">Module 2</span>
+    <span class="plabel" id="pl2">Module 3</span><span class="plabel" id="pl3">Module 4</span>
+    <span class="plabel" id="pl4">Module 5</span>
+  </div>
+</div>
+
+<!-- LANDING -->
+
+<div class="screen active" id="s-land">
+  <div class="card">
+    <div style="text-align:center;font-size:44px;margin-bottom:10px;">📊</div>
+    <h1>Financial Management &amp; Markets</h1>
+    <p class="subtitle">MOD010837 — Lecture 7 Interactive Activities</p>
+    <div class="mod-pills">
+      <div class="mpill"><span>1</span>Financial System</div>
+      <div class="mpill"><span>2</span>Sources of Finance</div>
+      <div class="mpill"><span>3</span>Debt vs Equity</div>
+      <div class="mpill"><span>4</span>IPO &amp; Markets</div>
+      <div class="mpill"><span>5</span>IPO Calculations</div>
+    </div>
+    <div class="rules">
+      <div class="rule"><div class="rule-icon">⏱️</div><div><strong>60-minute timer</strong> starts when you click Start.</div></div>
+      <div class="rule"><div class="rule-icon">🎯</div><div><strong>3 attempts max</strong> — 1st=100%, 2nd=50%, 3rd=25%, then 0.</div></div>
+      <div class="rule"><div class="rule-icon">🔀</div><div><strong>Unique questions</strong> — randomly selected each session.</div></div>
+      <div class="rule"><div class="rule-icon">🏆</div><div><strong>Live leaderboard</strong> — first-attempt correct scores highest.</div></div>
+    </div>
+    <div class="name-row">
+      <input type="text" class="name-in" id="nameIn" placeholder="Enter your full name..." maxlength="40">
+      <button class="btn btn-navy" onclick="startSession()">Start ▶</button>
+    </div>
+    <div class="err" id="nameErr">Please enter your name to begin.</div>
+    <div id="landLB" class="lb" style="display:none;"><div class="lb-title">🏆 Leaderboard</div><div id="landLBBody"></div></div>
+  </div>
+</div>
+
+<!-- MODULE 1 -->
+
+<div class="screen" id="s-m1">
+  <div class="mod-head">
+    <div class="mod-num">Module 1 of 5</div>
+    <div class="mod-title">The Financial System</div>
+    <div class="mod-meta"><span>⏱ ~10 mins</span><span>🎯 100 pts</span><span>📌 Card Sort</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="sbar">
+      <div><div class="slabel">MODULE SCORE</div><div class="sval" id="m1ScoreEl">0 / 100</div></div>
+      <div><div class="slabel">SCORING</div><div style="font-size:11px;color:#888;">1st✅=8pts · 2nd=4pts · 3rd=2pts · Revealed=0</div></div>
+    </div>
+
+```
+<div class="know-box">
+  <div class="know-toggle" onclick="toggleKnow(this)">
+    <span><span class="know-icon">📚</span>Knowledge Box — The Financial System<span class="know-badge">Read me first!</span></span>
+    <span class="know-arrow">▼</span>
+  </div>
+  <div class="know-body">
+    <p>The financial system moves money between savers and borrowers through four distinct components.</p>
+
+    <h4>🏦 Financial Institutions — the ORGANISATIONS</h4>
+    <p>The businesses themselves: commercial banks, building societies, insurance companies, pension funds, hedge funds, credit unions, central banks.</p>
+    <div class="kw">⚠️ Institutions are the organisations — not what they trade. Barclays is an institution. Shares are not.</div>
+
+    <h4>📈 Financial Markets — the PLACES where trading happens</h4>
+    <p>The "venues": Stock Market, Bond Market, Forex Market, Commodity Markets, Derivatives Market, Money Markets, Futures Market, ETF Exchange, Crypto Market.</p>
+    <div class="ke">💡 The Stock Market is where shares are traded — it is the market, not the share itself.</div>
+
+    <h4>📄 Financial Instruments — the ASSETS being traded</h4>
+    <p>Equity: Shares · Debt: Bonds, Debentures, Treasury Bills, Certificates of Deposit · Derivatives: Options, Futures Contracts · Funds: ETFs, Cash.</p>
+    <div class="kw">⚠️ Don't confuse market (the place) with instrument (the thing). Stock Market = market. Shares = instrument.</div>
+
+    <h4>🛎️ Financial Services — activities that SUPPORT transactions</h4>
+    <p>Financial Planning, Wealth Management, Investment Advisory, Insurance Services, Payment Processing, Remittance, Custody Services, Leasing Services, Credit Card Services.</p>
+    <div class="ke">💡 If someone is doing something finance-related for you — advising, processing, insuring — that's a service.</div>
+  </div>
+</div>
+
+<div class="instruct">💡 Tap a <strong>card</strong> to select it (gold highlight), then tap the <strong>correct category box</strong>. <strong>8 pts</strong> 1st · <strong>4 pts</strong> 2nd · <strong>2 pts</strong> 3rd · then revealed.</div>
+<div class="pool" id="m1Pool"></div>
+<div class="zones zones-4">
+  <div class="dzone" onclick="zoneClick('m1','institutions')" id="dz-m1-institutions"><div class="dzone-label">🏦 Financial Institutions</div><div class="zone-items" id="zi-m1-institutions"></div></div>
+  <div class="dzone" onclick="zoneClick('m1','markets')" id="dz-m1-markets"><div class="dzone-label">📈 Financial Markets</div><div class="zone-items" id="zi-m1-markets"></div></div>
+  <div class="dzone" onclick="zoneClick('m1','instruments')" id="dz-m1-instruments"><div class="dzone-label">📄 Financial Instruments</div><div class="zone-items" id="zi-m1-instruments"></div></div>
+  <div class="dzone" onclick="zoneClick('m1','services')" id="dz-m1-services"><div class="dzone-label">🛎️ Financial Services</div><div class="zone-items" id="zi-m1-services"></div></div>
+</div>
+<div class="fb" id="m1FB"></div>
+<div class="review-box" id="m1Review"><h4>📋 Items Revealed (Study These!)</h4><div id="m1ReviewList"></div></div>
+<div style="text-align:center;margin-top:16px;"><button class="btn btn-navy btn-hidden" id="m1Next" onclick="nextModule(1)">Continue to Module 2 →</button></div>
+```
+
+  </div>
+</div>
+
+<!-- MODULE 2 -->
+
+<div class="screen" id="s-m2">
+  <div class="mod-head">
+    <div class="mod-num">Module 2 of 5</div>
+    <div class="mod-title">Sources of Finance</div>
+    <div class="mod-meta"><span>⏱ ~12 mins</span><span>🎯 100 pts</span><span>📌 Two-Stage Card Sort</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="sbar">
+      <div><div class="slabel">MODULE SCORE</div><div class="sval" id="m2ScoreEl">0 / 100</div></div>
+      <div><div class="slabel">STAGE</div><div id="m2StageEl" style="font-weight:700;color:#1a2744;">Stage 1 of 2</div></div>
+    </div>
+
+```
+<div class="know-box">
+  <div class="know-toggle" onclick="toggleKnow(this)">
+    <span><span class="know-icon">📚</span>Knowledge Box — Sources of Finance<span class="know-badge">Read me first!</span></span>
+    <span class="know-arrow">▼</span>
+  </div>
+  <div class="know-body">
+    <h4>🏢 Internal Finance — money already INSIDE the business</h4>
+    <p>No new obligations. Usually cheapest. Key sources: <strong>Retained Earnings</strong>, <strong>Sale of Assets</strong>, <strong>Working Capital Management</strong>, <strong>Depreciation Provisions</strong>.</p>
+    <div class="kw">⚠️ Retained earnings are INTERNAL even though they come from sales. The test: was the money already inside the business before this financing decision?</div>
+
+    <h4>🌐 External Finance — money from OUTSIDE the business</h4>
+    <p>Creates new obligations — repayments to lenders or ownership dilution for investors. Split by duration:</p>
+
+    <h4>⚡ Short-Term (&lt;1 year) — for cash flow gaps</h4>
+    <p>Bank Overdraft · Trade Credit · Debt Factoring · Invoice Discounting · Revolving Credit · Peer-to-Peer Lending</p>
+
+    <h4>📅 Medium-Term (1–5 years) — for equipment &amp; growth</h4>
+    <p>Leasing · Hire Purchase · Bank Loan · Venture Capital · Crowdfunding · Asset Finance</p>
+
+    <h4>🔒 Long-Term / Permanent — for buildings &amp; ownership</h4>
+    <p>Share Issue · Debenture · Corporate Bond · Mortgage · Government Grants · Angel Investment</p>
+    <div class="ke">💡 Short = cash flow gaps · Medium = buying equipment · Long = buildings &amp; permanent capital</div>
+  </div>
+</div>
+
+<div id="m2s1">
+  <div class="instruct">💡 <strong>Stage 1:</strong> Sort into <strong>Internal</strong> or <strong>External</strong>. 5pts · 2.5pts · 1.25pts · then 0.</div>
+  <div class="pool" id="m2Pool1"></div>
+  <div class="zones zones-2">
+    <div class="dzone" onclick="zoneClick('m2s1','internal')" id="dz-m2s1-internal"><div class="dzone-label">🏢 Internal Finance</div><div class="zone-items" id="zi-m2s1-internal"></div></div>
+    <div class="dzone" onclick="zoneClick('m2s1','external')" id="dz-m2s1-external"><div class="dzone-label">🌐 External Finance</div><div class="zone-items" id="zi-m2s1-external"></div></div>
+  </div>
+  <div class="fb" id="m2s1FB"></div>
+  <div class="review-box" id="m2s1Review"><h4>📋 Items Revealed</h4><div id="m2s1ReviewList"></div></div>
+</div>
+<div id="m2s2" style="display:none;">
+  <div class="divider"></div>
+  <div class="instruct">💡 <strong>Stage 2:</strong> Sort external sources by duration. 5pts · 2.5pts · 1.25pts · then 0.</div>
+  <div class="pool" id="m2Pool2"></div>
+  <div class="zones zones-3">
+    <div class="dzone" onclick="zoneClick('m2s2','short')" id="dz-m2s2-short"><div class="dzone-label">⚡ Short-Term (&lt;1yr)</div><div class="zone-items" id="zi-m2s2-short"></div></div>
+    <div class="dzone" onclick="zoneClick('m2s2','medium')" id="dz-m2s2-medium"><div class="dzone-label">📅 Medium-Term (1–5yrs)</div><div class="zone-items" id="zi-m2s2-medium"></div></div>
+    <div class="dzone" onclick="zoneClick('m2s2','long')" id="dz-m2s2-long"><div class="dzone-label">🔒 Long-Term / Permanent</div><div class="zone-items" id="zi-m2s2-long"></div></div>
+  </div>
+  <div class="fb" id="m2s2FB"></div>
+  <div class="review-box" id="m2s2Review"><h4>📋 Items Revealed</h4><div id="m2s2ReviewList"></div></div>
+</div>
+<div class="divider"></div>
+<div style="text-align:center;"><button class="btn btn-navy btn-hidden" id="m2Next" onclick="nextModule(2)">Continue to Module 3 →</button></div>
+```
+
+  </div>
+</div>
+
+<!-- MODULE 3 -->
+
+<div class="screen" id="s-m3">
+  <div class="mod-head">
+    <div class="mod-num">Module 3 of 5</div>
+    <div class="mod-title">Debt vs Equity</div>
+    <div class="mod-meta"><span>⏱ ~12 mins</span><span>🎯 100 pts</span><span>📌 Spot the Error + True/False</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="sbar">
+      <div><div class="slabel">MODULE SCORE</div><div class="sval" id="m3ScoreEl">0 / 100</div></div>
+      <div><div class="slabel">PART</div><div id="m3PartEl" style="font-weight:700;color:#1a2744;">Part A</div></div>
+    </div>
+
+```
+<div class="know-box">
+  <div class="know-toggle" onclick="toggleKnow(this)">
+    <span><span class="know-icon">📚</span>Knowledge Box — Debt vs Equity &amp; the P&amp;L<span class="know-badge">Read me first!</span></span>
+    <span class="know-arrow">▼</span>
+  </div>
+  <div class="know-body">
+    <h4>⚖️ Debt Finance</h4>
+    <p>Borrowed money — must be repaid with interest. Examples: bank loans, bonds, debentures, overdrafts. <span class="kt">Gearing</span> = debt ÷ equity. High gearing = more debt = higher financial risk. Debt holders are paid before shareholders in liquidation.</p>
+
+    <h4>📊 Equity Finance</h4>
+    <p>Raising money by issuing shares — no mandatory repayment. Ordinary shareholders get voting rights and variable dividends. Preference shareholders get fixed dividends but usually no voting rights. A <span class="kt">Rights Issue</span> offers new shares to existing shareholders at a discount.</p>
+
+    <h4>📋 The Critical Rule — Where things sit in the accounts</h4>
+    <div class="kf">
+      ✅ Interest expense → P&amp;L as a <b>Finance Cost</b> (NOT operating expenses)<br>
+      ❌ Dividends paid → NOT in P&amp;L → reduce Retained Earnings on Balance Sheet<br>
+      ❌ Share capital issued → NOT an expense → increases Equity on Balance Sheet<br>
+      ❌ Loan repayments → NOT in P&amp;L → reduce a Liability on Balance Sheet
+    </div>
+    <div class="kw">⚠️ If the money flows between the company and its funders, it goes on the Balance Sheet — not the P&amp;L.</div>
+
+    <h4>📋 P&amp;L Structure</h4>
+    <div class="kf">
+      Revenue − Cost of Sales = <b>Gross Profit</b><br>
+      − Operating Expenses = <b>Operating Profit (EBIT)</b><br>
+      − Finance Costs (interest only) = <b>Net Profit Before Tax</b>
+    </div>
+
+    <h4>🏦 Bond vs Debenture</h4>
+    <p><span class="kt">Bond</span> Usually secured on assets → lower risk → lower interest rate. <span class="kt">Debenture</span> Usually unsecured → slightly higher risk for investors.</p>
+  </div>
+</div>
+
+<div id="m3pa">
+  <h3 style="font-family:'Playfair Display',serif;color:#1a2744;margin-bottom:7px;">Part A: Spot the Error</h3>
+  <div class="instruct">💡 The P&amp;L has <strong>3 deliberate errors</strong>. Tap a row marked ← then choose the correct fix. 15pts · 7.5pts · 3.75pts · then 0.</div>
+  <div style="font-size:13px;color:#888;margin-bottom:10px;">Errors found: <strong id="errCt">0</strong> / 3</div>
+  <div class="pl-wrap" id="plWrap">
+    <div class="pl-row"><span>Revenue</span><span>£500,000</span></div>
+    <div class="pl-row"><span>Less: Cost of Sales</span><span>(£200,000)</span></div>
+    <div class="pl-row pl-sep"><span><strong>Gross Profit</strong></span><span><strong>£300,000</strong></span></div>
+    <div class="pl-row clickable" data-eid="opex" onclick="plRowClick(this)"><span>Less: Operating Expenses</span><span>(£80,000)</span></div>
+    <div class="pl-row pl-sep"><span><strong>Operating Profit</strong></span><span><strong>£220,000</strong></span></div>
+    <div class="pl-row clickable" data-eid="interest" onclick="plRowClick(this)"><span>Less: Interest Expense (Operating Cost) ←</span><span>(£15,000)</span></div>
+    <div class="pl-row clickable" data-eid="dividend" onclick="plRowClick(this)"><span>Less: Dividend Paid (Finance Cost) ←</span><span>(£10,000)</span></div>
+    <div class="pl-row clickable" data-eid="equity" onclick="plRowClick(this)"><span>Less: Share Capital Issued (Expense) ←</span><span>(£50,000)</span></div>
+    <div class="pl-row pl-sep"><span><strong>Net Profit Before Tax</strong></span><span><strong>£145,000</strong></span></div>
+  </div>
+  <div class="err-opts" id="errOpts"></div>
+  <div class="fb" id="m3aFB"></div>
+  <div class="review-box" id="m3aReview"><h4>📋 Errors Revealed</h4><div id="m3aReviewList"></div></div>
+</div>
+<div id="m3pb" style="display:none;">
+  <div class="divider"></div>
+  <h3 style="font-family:'Playfair Display',serif;color:#1a2744;margin-bottom:7px;">Part B: True or False?</h3>
+  <div class="instruct">💡 8 questions. 6pts · 3pts · 2pts · then 0. Need <strong>6/8</strong> to proceed.</div>
+  <div class="tf-gate">Minimum required: <strong>6/8</strong> — Current: <strong id="tfScore">0/8</strong></div>
+  <div id="tfContainer"></div>
+  <div class="fb" id="m3bFB"></div>
+  <div style="text-align:center;margin-top:12px;"><button class="btn btn-navy btn-hidden" id="m3Retry" onclick="loadTF()">🔄 Retry</button></div>
+</div>
+<div class="divider"></div>
+<div style="text-align:center;"><button class="btn btn-navy btn-hidden" id="m3Next" onclick="nextModule(3)">Continue to Module 4 →</button></div>
+```
+
+  </div>
+</div>
+
+<!-- MODULE 4 -->
+
+<div class="screen" id="s-m4">
+  <div class="mod-head">
+    <div class="mod-num">Module 4 of 5</div>
+    <div class="mod-title">IPO &amp; Capital Markets</div>
+    <div class="mod-meta"><span>⏱ ~12 mins</span><span>🎯 100 pts</span><span>📌 Sort + Match + Scenario</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="sbar">
+      <div><div class="slabel">MODULE SCORE</div><div class="sval" id="m4ScoreEl">0 / 100</div></div>
+      <div><div class="slabel">PART</div><div id="m4PartEl" style="font-weight:700;color:#1a2744;">Part A</div></div>
+    </div>
+
+```
+<div class="know-box">
+  <div class="know-toggle" onclick="toggleKnow(this)">
+    <span><span class="know-icon">📚</span>Knowledge Box — IPO &amp; Capital Markets<span class="know-badge">Read me first!</span></span>
+    <span class="know-arrow">▼</span>
+  </div>
+  <div class="know-body">
+    <h4>🆕 Primary Market — NEW securities being issued</h4>
+    <p>Fresh capital flows directly to the issuer. Includes: IPO, Rights Issue, new bond/debenture issues, government gilt issuances.</p>
+    <div class="kw">⚠️ One test: Is a brand-new security being created and does money go to the issuer? → Primary market.</div>
+
+    <h4>🔄 Secondary Market — EXISTING securities traded between investors</h4>
+    <p>No new capital reaches the company. Any trade on a stock exchange after the IPO listing date is secondary — ownership changes hands, nothing goes to the firm.</p>
+    <div class="ke">💡 The stock exchange is mostly a secondary market. The IPO is primary. All trades after listing are secondary.</div>
+
+    <h4>📋 Key IPO Terms</h4>
+    <ul>
+      <li><span class="kt">Underwriter</span> Investment bank managing the IPO — sets price, buys unsold shares</li>
+      <li><span class="kt">Prospectus</span> Legal document with financials &amp; risks — must be published before IPO</li>
+      <li><span class="kt">Book Building</span> Collecting investor bids to determine the final offer price</li>
+      <li><span class="kt">Price Band</span> The min–max range investors can bid within</li>
+      <li><span class="kt">Lock-Up Period</span> Insiders cannot sell shares for ~6 months post-IPO</li>
+      <li><span class="kt">Greenshoe Option</span> Underwriter can sell up to 15% extra shares if demand is high</li>
+      <li><span class="kt">Free Float</span> % of shares available for public trading</li>
+      <li><span class="kt">IPO Discount</span> Offer price set below true value to ensure all shares sell</li>
+      <li><span class="kt">Dilution</span> Existing shareholders' % falls when new shares are issued</li>
+      <li><span class="kt">Roadshow</span> Management tour pitching the IPO to institutional investors</li>
+      <li><span class="kt">Allotment</span> Assigning shares to investors after subscription closes</li>
+      <li><span class="kt">Grey Market</span> Unofficial trading of IPO shares before official listing</li>
+      <li><span class="kt">Market Cap</span> Share Price × Total Shares = total company value</li>
+      <li><span class="kt">Pre-IPO Placement</span> Shares sold to select investors before the public IPO</li>
+    </ul>
+  </div>
+</div>
+
+<div id="m4pa">
+  <h3 style="font-family:'Playfair Display',serif;color:#1a2744;margin-bottom:7px;">Part A: Primary vs Secondary Markets</h3>
+  <div class="instruct">💡 Sort each card into the correct market. 10pts · 5pts · 2.5pts · then 0.</div>
+  <div class="pool" id="m4Pool"></div>
+  <div class="zones zones-2">
+    <div class="dzone" onclick="zoneClick('m4','primary')" id="dz-m4-primary"><div class="dzone-label">🆕 Primary Market</div><div class="zone-items" id="zi-m4-primary"></div></div>
+    <div class="dzone" onclick="zoneClick('m4','secondary')" id="dz-m4-secondary"><div class="dzone-label">🔄 Secondary Market</div><div class="zone-items" id="zi-m4-secondary"></div></div>
+  </div>
+  <div class="fb" id="m4aFB"></div>
+  <div class="review-box" id="m4aReview"><h4>📋 Items Revealed</h4><div id="m4aReviewList"></div></div>
+</div>
+<div id="m4pb" style="display:none;">
+  <div class="divider"></div>
+  <h3 style="font-family:'Playfair Display',serif;color:#1a2744;margin-bottom:7px;">Part B: Key Terms Matching</h3>
+  <div class="instruct">💡 Tap a <strong>term</strong> (left) then its <strong>definition</strong> (right). 10pts · 5pts · 2.5pts · then 0.</div>
+  <div class="match-wrap">
+    <div><div class="match-col-label">Terms</div><div class="mterms" id="mTerms"></div></div>
+    <div><div class="match-col-label">Definitions</div><div class="mdefs" id="mDefs"></div></div>
+  </div>
+  <div class="fb" id="m4bFB"></div>
+  <div class="review-box" id="m4bReview"><h4>📋 Pairs Revealed</h4><div id="m4bReviewList"></div></div>
+</div>
+<div id="m4pc" style="display:none;">
+  <div class="divider"></div>
+  <h3 style="font-family:'Playfair Display',serif;color:#1a2744;margin-bottom:7px;">Part C: Scenario Question</h3>
+  <div class="scenario-q" id="m4cQ"></div>
+  <div class="sopts" id="m4cOpts"></div>
+  <div class="fb" id="m4cFB"></div>
+</div>
+<div class="divider"></div>
+<div style="text-align:center;"><button class="btn btn-navy btn-hidden" id="m4Next" onclick="nextModule(4)">Continue to Module 5 →</button></div>
+```
+
+  </div>
+</div>
+
+<!-- MODULE 5 -->
+
+<div class="screen" id="s-m5">
+  <div class="mod-head">
+    <div class="mod-num">Module 5 of 5</div>
+    <div class="mod-title">IPO Calculation Challenge</div>
+    <div class="mod-meta"><span>⏱ ~12 mins</span><span>🎯 100 pts</span><span>📌 Case Study</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="sbar">
+      <div><div class="slabel">MODULE SCORE</div><div class="sval" id="m5ScoreEl">0 / 100</div></div>
+      <div><div class="slabel">STEPS DONE</div><div id="m5StepsEl" style="font-weight:700;color:#1a2744;">0 / 4</div></div>
+    </div>
+
+```
+<div class="know-box">
+  <div class="know-toggle" onclick="toggleKnow(this)">
+    <span><span class="know-icon">📚</span>Knowledge Box — IPO Calculations<span class="know-badge">Read me first!</span></span>
+    <span class="know-arrow">▼</span>
+  </div>
+  <div class="know-body">
+    <p>A company doesn't keep everything raised — IPO costs come off first. Three steps:</p>
+    <div class="kf">
+      <b>Step 1 — Gross Proceeds:</b> Shares × IPO Offer Price<br>
+      <b>Step 2 — Underwriting Fee:</b> Gross Proceeds × Fee %<br>
+      <b>Step 3 — Net Proceeds:</b> Gross Proceeds − Underwriting Fee − Other Expenses
+    </div>
+    <div class="kw">⚠️ Net Proceeds is always less than Gross Proceeds. It's the actual cash available for business use.</div>
+
+    <h4>📌 Worked Example</h4>
+    <p>2,000,000 shares at $10 · Fee 5% · Other expenses $200,000</p>
+    <ul>
+      <li>Gross Proceeds = 2,000,000 × $10 = <strong>$20,000,000</strong></li>
+      <li>Underwriting Fee = $20,000,000 × 0.05 = <strong>$1,000,000</strong></li>
+      <li>Net Proceeds = $20m − $1m − $0.2m = <strong>$18,800,000</strong></li>
+    </ul>
+    <div class="ke">💡 No commas when typing. Enter 10000000 not 10,000,000 or the answer will be rejected.</div>
+
+    <h4>🏦 What is the Underwriting Fee?</h4>
+    <p>The investment bank guarantees the IPO raises its full target — buying any unsold shares itself. The fee (3–7%) is their reward for taking that risk.</p>
+  </div>
+</div>
+
+<div id="m5CaseData" style="background:#1a2744;color:#fff;border-radius:9px;padding:16px 18px;margin-bottom:18px;font-size:13px;line-height:1.8;"></div>
+<div class="calc-step active-step" id="cs1">
+  <div class="cstep-num">Step 1 of 4</div>
+  <div class="cstep-title">Calculate the Gross Proceeds</div>
+  <div class="formula">Gross Proceeds = Number of Shares × IPO Offer Price per Share</div>
+  <div style="font-size:12px;color:#666;margin-bottom:9px;">No commas — e.g. type 100000000</div>
+  <div class="cinput-row">
+    <span id="c1curr" style="font-weight:700;color:#666;">$</span>
+    <input type="number" class="cinput" id="c1in" placeholder="Enter amount...">
+    <button class="btn btn-navy btn-sm" onclick="checkCalc(1)">Check ✓</button>
+  </div>
+  <div class="fb" id="c1FB"></div>
+</div>
+<div class="calc-step locked" id="cs2">
+  <div class="cstep-num">Step 2 of 4</div>
+  <div class="cstep-title">Calculate the Underwriting Fee</div>
+  <div class="formula">Underwriting Fee = Gross Proceeds × Underwriting Fee %</div>
+  <div style="font-size:12px;color:#666;margin-bottom:9px;">Use your Step 1 answer.</div>
+  <div class="cinput-row">
+    <span id="c2curr" style="font-weight:700;color:#666;">$</span>
+    <input type="number" class="cinput" id="c2in" placeholder="Enter amount...">
+    <button class="btn btn-navy btn-sm" onclick="checkCalc(2)">Check ✓</button>
+  </div>
+  <div class="fb" id="c2FB"></div>
+</div>
+<div class="calc-step locked" id="cs3">
+  <div class="cstep-num">Step 3 of 4</div>
+  <div class="cstep-title">Calculate the Net Proceeds to the Firm</div>
+  <div class="formula">Net Proceeds = Gross Proceeds − Underwriting Fee − Other Expenses</div>
+  <div style="font-size:12px;color:#666;margin-bottom:9px;"></div>
+  <div class="cinput-row">
+    <span id="c3curr" style="font-weight:700;color:#666;">$</span>
+    <input type="number" class="cinput" id="c3in" placeholder="Enter amount...">
+    <button class="btn btn-navy btn-sm" onclick="checkCalc(3)">Check ✓</button>
+  </div>
+  <div class="fb" id="c3FB"></div>
+</div>
+<div class="calc-step locked" id="cs4">
+  <div class="cstep-num">Step 4 of 4 — Interpretation</div>
+  <div class="cstep-title">What does the Net Proceeds figure tell us?</div>
+  <div class="sopts" id="c4Opts"></div>
+  <div class="fb" id="c4FB"></div>
+</div>
+<div class="divider"></div>
+<div style="text-align:center;"><button class="btn btn-gold btn-hidden" id="m5Next" onclick="nextModule(5)">🏁 View My Results</button></div>
+```
+
+  </div>
+</div>
+
+<!-- FINAL -->
+
+<div class="screen" id="s-final">
+  <div style="text-align:center;padding:32px 16px 0;"><div style="font-size:56px;">🎓</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:28px;color:#1a2744;margin:10px 0;">Session Complete!</h1>
+  </div>
+  <div class="cert" id="certEl">
+    <div class="cert-logo">a.r.u.</div>
+    <div class="cert-tag">Certificate of Completion</div>
+    <div class="cert-name" id="certName">—</div>
+    <div class="cert-text">has successfully completed the interactive learning activities for<br><strong>Financial Management and Financial Markets — Lecture 7</strong></div>
+    <div class="cert-score" id="certScore">0</div>
+    <div class="cert-score-lbl">TOTAL POINTS OUT OF 500</div>
+  </div>
+  <div class="final-mods" id="finalMods"></div>
+  <div class="lb" id="finalLB"><div class="lb-title">🏆 Final Leaderboard</div><div id="finalLBBody"></div></div>
+  <div class="summary-box">
+    <h3>📚 Key Concepts Covered Today</h3>
+    <div class="summary-grid">
+      <div>✅ The four components of the financial system</div><div>✅ Internal vs external sources of finance</div>
+      <div>✅ Short, medium and long-term finance</div><div>✅ Debt finance: bonds, debentures, interest</div>
+      <div>✅ Equity finance: shares, dividends</div><div>✅ P&L accounting treatment of debt and equity</div>
+      <div>✅ Primary vs secondary capital markets</div><div>✅ IPO process and key terminology</div>
+      <div>✅ Gross proceeds, underwriting fees, net proceeds</div><div>✅ Capital structure and gearing</div>
+    </div>
+  </div>
+</div>
+
+<!-- LECTURER DASHBOARD -->
+
+<div id="dashView">
+  <div class="dash-head">
+    <div><div style="font-family:'Playfair Display',serif;font-size:20px;">Lecturer Dashboard</div><div style="font-size:12px;opacity:.75;margin-top:3px;">Financial Management &amp; Markets — Lecture 7</div></div>
+    <div style="display:flex;gap:10px;">
+      <button class="nudge-btn" onclick="sendNudge()">📣 Nudge All</button>
+      <button class="nudge-btn" onclick="refreshDash()" style="background:#fff;">🔄 Refresh</button>
+    </div>
+  </div>
+  <div class="dash-stats">
+    <div class="dstat"><div class="dstat-n" id="ds-total">0</div><div class="dstat-l">Registered</div></div>
+    <div class="dstat"><div class="dstat-n" id="ds-active">0</div><div class="dstat-l">Active</div></div>
+    <div class="dstat"><div class="dstat-n" id="ds-done">0</div><div class="dstat-l">Completed</div></div>
+    <div class="dstat"><div class="dstat-n" id="ds-stall" style="color:#c0392b;">0</div><div class="dstat-l" style="color:#c0392b;">⚠ Stalled</div></div>
+  </div>
+  <div class="dash-tbl"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Module</th><th>Score</th><th>Time</th><th>Status</th></tr></thead>
+    <tbody id="dashBody"></tbody>
+  </table></div>
+</div>
+
+<script>
+function toggleKnow(t){var a=t.querySelector('.know-arrow');var b=t.nextElementSibling;if(b.classList.contains('open')){b.classList.remove('open');a.style.transform='rotate(0deg)';}else{b.classList.add('open');a.style.transform='rotate(180deg)';}}
+function calcPoints(a,m){if(a===1)return m;if(a===2)return Math.round(m*.5*100)/100;if(a===3)return Math.round(m*.25*100)/100;return 0;}
+const M1_BANK={institutions:[{id:'banks',text:'Commercial Banks'},{id:'insurance',text:'Insurance Companies'},{id:'invest_co',text:'Investment Companies'},{id:'brokerage',text:'Brokerage Firm'},{id:'credit_unions',text:'Credit Unions'},{id:'pension',text:'Pension Funds'},{id:'hedge',text:'Hedge Funds'},{id:'building_soc',text:'Building Societies'},{id:'central_bank',text:'Central Bank'}],markets:[{id:'stock_mkt',text:'Stock Market'},{id:'forex',text:'Forex Markets'},{id:'bonds_mkt',text:'Bond Markets'},{id:'crypto',text:'Cryptocurrency Market'},{id:'commodity',text:'Commodity Markets'},{id:'derivatives',text:'Derivatives Market'},{id:'money_mkt',text:'Money Markets'},{id:'futures_mkt',text:'Futures Market'},{id:'etf_mkt',text:'ETF Exchange Market'}],instruments:[{id:'cash',text:'Cash'},{id:'shares',text:'Shares of Stock'},{id:'options',text:'Options'},{id:'futures',text:'Futures Contracts'},{id:'bonds_inst',text:'Corporate Bonds'},{id:'debentures',text:'Debentures'},{id:'etfs',text:'Exchange Traded Funds'},{id:'cds',text:'Certificates of Deposit'},{id:'treasury',text:'Treasury Bills'}],services:[{id:'fin_plan',text:'Financial Planning'},{id:'wealth',text:'Wealth Management'},{id:'insurance_svc',text:'Insurance Services'},{id:'payment',text:'Payment Processing'},{id:'credit_card',text:'Credit Card Services'},{id:'remittance',text:'Remittance Services'},{id:'custody',text:'Custody Services'},{id:'advisory',text:'Investment Advisory'},{id:'leasing_svc',text:'Leasing Services'}]};
+const M2S1_BANK={internal:[{id:'retained',text:'Retained Earnings'},{id:'working_cap',text:'Working Capital Management'},{id:'sale_assets',text:'Sale of Assets'},{id:'depreciation',text:'Depreciation Provisions'},{id:'stock_reduction',text:'Stock Reduction'},{id:'debtors',text:'Accelerating Debtor Collection'},{id:'cost_cutting',text:'Cost-Cutting Measures'},{id:'retained2',text:'Undistributed Profits'},{id:'asset_disposal',text:'Asset Disposal Proceeds'}],external:[{id:'overdraft',text:'Bank Overdraft'},{id:'trade_credit',text:'Trade Credit'},{id:'debt_factor',text:'Debt Factoring'},{id:'leasing',text:'Leasing'},{id:'hire_purchase',text:'Hire Purchase'},{id:'share_issue',text:'Share Issue'},{id:'debenture',text:'Debenture'},{id:'grants',text:'Government Grants'},{id:'mortgage',text:'Long-Term Mortgage'},{id:'venture_cap',text:'Venture Capital'},{id:'crowdfund',text:'Crowdfunding'},{id:'angel',text:'Angel Investment'},{id:'bonds_ext',text:'Corporate Bond Issue'},{id:'peer2peer',text:'Peer-to-Peer Lending'},{id:'factoring2',text:'Invoice Discounting'},{id:'revolving',text:'Revolving Credit Facility'},{id:'bank_loan',text:'Bank Loan'},{id:'asset_finance',text:'Asset Finance'}]};
+const M2S2_BANK={short:[{id:'overdraft',text:'Bank Overdraft'},{id:'trade_credit',text:'Trade Credit'},{id:'debt_factor',text:'Debt Factoring'},{id:'factoring2',text:'Invoice Discounting'},{id:'revolving',text:'Revolving Credit Facility'},{id:'peer2peer',text:'Peer-to-Peer Lending'}],medium:[{id:'leasing',text:'Leasing'},{id:'hire_purchase',text:'Hire Purchase'},{id:'bank_loan',text:'Bank Loan'},{id:'asset_finance',text:'Asset Finance'},{id:'venture_cap',text:'Venture Capital'},{id:'crowdfund',text:'Crowdfunding'}],long:[{id:'share_issue',text:'Share Issue'},{id:'debenture',text:'Debenture'},{id:'grants',text:'Government Grants'},{id:'mortgage',text:'Long-Term Mortgage'},{id:'angel',text:'Angel Investment'},{id:'bonds_ext',text:'Corporate Bond Issue'}]};
+const M4A_BANK={primary:[{id:'ipo_tx',text:'Company issues new shares on the stock exchange for the first time'},{id:'govt_bond',text:'Government issues new bonds to raise capital'},{id:'rights',text:'Listed company offers new shares to existing shareholders'},{id:'corp_bond_new',text:'Corporation issues brand new bonds to raise debt capital'},{id:'spac_ipo',text:'A SPAC raises funds by listing blank-cheque shares with the public'},{id:'rights2',text:'Company raises fresh equity via a rights issue to fund an acquisition'},{id:'gilts',text:'The UK Treasury sells new gilt-edged securities to investors'},{id:'convertible',text:'Company issues new convertible bonds for the first time'},{id:'private_place',text:'Investment bank places newly issued shares directly with institutions'}],secondary:[{id:'share_trade',text:'An investor buys existing Tesla shares on the NYSE'},{id:'bond_trade',text:'A fund sells government bonds it already holds'},{id:'investor_trade',text:'Two investors trade company shares between each other on the exchange'},{id:'lse_trade',text:'A pension fund sells its HSBC shares on the London Stock Exchange'},{id:'etf_trade',text:'An investor buys an ETF tracking the FTSE 100 on the open market'},{id:'options_trade',text:'Trader buys call options on existing listed company shares'},{id:'ipo_after',text:'Shares purchased three days after the IPO listing date'},{id:'portfolio',text:'Fund manager rebalances portfolio by selling existing equity positions'},{id:'retail_broker',text:'Retail investor uses a broker app to buy shares already listed on LSE'}]};
+const M4B_BANK=[{id:'common_stock',term:'Common Stock',def:'Units of ownership in a public company, giving voting rights and potential dividends'},{id:'issue_price',term:'Issue Price',def:'The initial selling price of shares to investors before public trading begins'},{id:'underwriter',term:'Underwriter',def:'The investment bank managing the IPO, setting the offer price and distributing shares'},{id:'market_cap',term:'Market Capitalisation',def:"Total value of a company's outstanding shares — used to indicate firm size"},{id:'price_band',term:'Price Band',def:'The range within which investors can bid for IPO shares'},{id:'lot_size',term:'Lot Size',def:'The minimum number of shares that can be bid for in an IPO'},{id:'prospectus',term:'Prospectus',def:'Legal document disclosing company financials, risks and IPO terms to potential investors'},{id:'lock_up',term:'Lock-Up Period',def:'Time after IPO when insiders are restricted from selling their shares'},{id:'book_build',term:'Book Building',def:'Process where underwriters gauge investor demand to set the final IPO offer price'},{id:'float',term:'Free Float',def:'Proportion of shares available for public trading after the IPO'},{id:'grey_mkt',term:'Grey Market',def:'Unofficial trading of IPO shares before they officially list on the stock exchange'},{id:'allotment',term:'Allotment',def:'The assignment of IPO shares to investors following the subscription process'},{id:'overallotment',term:'Greenshoe Option',def:"Underwriter's right to sell additional shares if demand exceeds the original offer"},{id:'roadshow',term:'Roadshow',def:'Series of presentations by company management to attract institutional investors before an IPO'},{id:'dilution',term:'Dilution',def:"Reduction in existing shareholders' ownership percentage caused by issuing new shares"},{id:'ipo_discount',term:'IPO Discount',def:'Setting the offer price below perceived value to ensure the IPO is fully subscribed'},{id:'dual_listing',term:'Dual Listing',def:'Company listing its shares on two different stock exchanges simultaneously'},{id:'pre_ipo',term:'Pre-IPO Placement',def:'Sale of shares to select investors before the public IPO at a negotiated price'}];
+const M4C_BANK=[{q:'🏢 <strong>GreenTech Ltd</strong> is a private company raising £50m. They offer shares to the public for the <strong>first time</strong>, engaging an investment bank to set the offer price, listing on the LSE.<br><br><strong>Which market does this take place in, and why?</strong>',correct:'Primary market — new shares are being issued directly by the company to investors for the first time.',wrongs:['Secondary market — shares will be traded on the stock exchange after listing.','Money market — the company is raising short-term capital through a financial institution.','Primary market — an investment bank is involved in the transaction.'],expl:'An IPO is a <strong>primary market</strong> transaction. Brand-new shares are issued directly to investors. The secondary market only handles existing shares traded between investors after listing.'},{q:'📈 <strong>BlueSky plc</strong> is already listed on the NYSE. A fund manager sells 500,000 BlueSky shares to another institutional investor through the stock exchange.<br><br><strong>Which market is this, and what is the key feature?</strong>',correct:'Secondary market — existing shares are being traded between investors, with no new capital going to the company.',wrongs:['Primary market — the stock exchange is involved in the transaction.','Money market — the transaction involves institutional investors.','Primary market — new shares are created each time investors trade on the exchange.'],expl:'<strong>Existing shares</strong> traded between investors = <strong>secondary market</strong>. No new capital reaches the company — purely a transfer of ownership.'},{q:'💡 <strong>NovaMed Corp</strong> needs £200m. The CFO considers: (A) issue new bonds to institutional investors, or (B) employees trade existing company shares on the LSE.<br><br><strong>Which option involves the primary market?</strong>',correct:'Option A — issuing new bonds is a primary market activity as new securities are being created and sold to raise capital.',wrongs:['Option B — trading existing shares on the LSE is a primary market activity.','Both options — any transaction on a stock exchange is primary market.','Neither — primary markets only involve government securities.'],expl:'<strong>Option A</strong> is primary market — new securities (bonds) issued to raise fresh capital. Option B is secondary — existing shares traded between investors.'}];
+const M5_BANK=[{label:'Green Energy Corp',shares:5000000,price:20,feePercent:5,otherExp:1500000,currency:'$'},{label:'BlueTech plc',shares:8000000,price:3.50,feePercent:4,otherExp:800000,currency:'£'},{label:'SolarVenture Inc',shares:10000000,price:15,feePercent:6,otherExp:2000000,currency:'$'}];
+const TF_BANK=[{q:'Interest expense on debt is classified as an operating expense in the P&L.',ans:false,expl:'Interest is a finance cost — it arises from financing decisions, not day-to-day operations.'},{q:'Equity finance requires mandatory annual repayments to shareholders.',ans:false,expl:'Equity has no mandatory repayment. Dividends are paid at the company\'s discretion.'},{q:'A debenture is typically unsecured, relying on the issuer\'s creditworthiness.',ans:true,expl:'Correct. Debentures are long-term debt instruments usually not backed by specific assets.'},{q:'When a company issues new shares, this increases its liabilities on the balance sheet.',ans:false,expl:'Issuing shares increases equity (share capital & reserves), not liabilities.'},{q:'A bond is generally lower risk to the investor than a debenture.',ans:true,expl:'Correct. Bonds are often secured on assets, making them lower risk than unsecured debentures.'},{q:'Dividends paid by a company reduce its retained earnings on the balance sheet.',ans:true,expl:'Correct. Dividends reduce retained earnings (equity) on the Balance Sheet, not the P&L.'},{q:'Retained earnings are a form of external finance because they come from profits.',ans:false,expl:'Retained earnings are internal finance — funds generated and kept within the business.'},{q:'A highly geared company has a larger proportion of finance from equity than from loans.',ans:false,expl:'High gearing means MORE debt relative to equity.'},{q:'The primary market is where existing shares are traded between investors.',ans:false,expl:'Primary market = NEW securities issued for the first time. Secondary market handles existing ones.'},{q:'An IPO allows a private company to raise capital from the general public for the first time.',ans:true,expl:'Correct. An IPO is when a private company first sells shares to the public.'},{q:'Debt finance is always cheaper than equity finance for a company.',ans:false,expl:'Not always. High debt increases financial risk, potentially making equity cheaper overall.'},{q:'Ordinary shareholders are paid before debt holders if a company goes into liquidation.',ans:false,expl:'Debt holders have priority. Shareholders are paid last, if at all.'},{q:'Trade credit is classified as long-term external finance.',ans:false,expl:'Trade credit is short-term — typically 30–90 days from suppliers.'},{q:'A rights issue raises new capital by offering existing shareholders additional shares at a discount.',ans:true,expl:'Correct. A rights issue gives existing shareholders the right to buy new shares at a discount.'},{q:'Venture capital firms typically invest in established, low-risk companies.',ans:false,expl:'Venture capital targets high-growth, early-stage companies — high risk, high return potential.'},{q:'Government grants must always be repaid with interest.',ans:false,expl:'Grants are non-repayable funds provided to support specific activities.'},{q:'Hire purchase allows a business to use an asset immediately while paying in instalments.',ans:true,expl:'Correct. The business takes possession immediately and owns it fully after the last payment.'},{q:'The stock exchange is classified as a financial instrument.',ans:false,expl:'The stock exchange is a financial market. Instruments are the securities traded there (shares, bonds).'},{q:'Gearing measures the proportion of a company\'s capital that comes from debt.',ans:true,expl:'Correct. Gearing compares debt to equity — indicates how much financing comes from borrowed funds.'},{q:'An overdraft is classified as long-term debt finance.',ans:false,expl:'A bank overdraft is short-term — repayable on demand, used for short-term cash flow gaps.'},{q:'The underwriting fee in an IPO is paid by investors who subscribe to the shares.',ans:false,expl:'The underwriting fee is paid by the company (issuer) to the investment bank, not investors.'},{q:'Preference shareholders typically have voting rights at AGMs.',ans:false,expl:'Preference shareholders usually do not have voting rights — that belongs to ordinary shareholders.'},{q:'Crowdfunding is a form of external finance.',ans:true,expl:'Correct. Crowdfunding raises money from the public via online platforms — external finance.'},{q:'Invoice discounting is a long-term source of finance.',ans:false,expl:'Invoice discounting is short-term — converts unpaid invoices into immediate cash.'}];
+const PL_ERRORS={interest:{correct:'Interest should be labelled as Finance Cost — NOT an Operating Cost',wrongs:['Interest should not appear in P&L at all','Interest is a type of equity payment'],expl:'Interest arises from financing decisions, not operations. It belongs below Operating Profit as a Finance Cost.'},dividend:{correct:'Dividends do NOT appear in P&L — they reduce retained earnings on the Balance Sheet',wrongs:['Dividends should be in operating expenses','Dividends are a type of liability'],expl:'Dividends are distributions of profit, not an expense. They appear on the Balance Sheet (reducing retained earnings).'},equity:{correct:'Share Capital Issued is NOT an expense — it increases equity on the Balance Sheet',wrongs:['Share capital should be in operating expenses','Share capital should be a finance cost'],expl:'Issuing shares creates equity, not an expense. It appears on the Balance Sheet under equity, not in the P&L.'}};
+function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
+function pick(a,n){return shuffle(a).slice(0,n);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function pickFromZones(bank,n){var r=[];for(var z in bank){pick(bank[z],n).forEach(i=>r.push({...i,zone:z}));}return shuffle(r);}
+var ST={name:'',startTime:null,timerInt:null,curModule:0,totalScore:0,modScores:[0,0,0,0,0],completed:false,lastAct:Date.now()};
+var attempts={};
+function getAtt(k){return attempts[k]||0;}
+function incAtt(k){attempts[k]=(attempts[k]||0)+1;return attempts[k];}
+var selId=null,selMod=null;
+var SESSION={m1Items:null,m2s1Items:null,m2s2Items:null,m4aItems:null,m4bItems:null,m4cItem:null,m5Item:null,tfItems:null};
+function saveLB(){if(!ST.name)return;try{var e={name:ST.name,score:Math.round(ST.totalScore),module:ST.curModule,time:ST.startTime?Math.floor((Date.now()-ST.startTime)/1000):0,completed:ST.completed,lastUpdate:Date.now()};var lb=JSON.parse(localStorage.getItem('aru_lb')||'[]');var i=lb.findIndex(s=>s.name===ST.name);if(i>=0)lb[i]=e;else lb.push(e);lb.sort((a,b)=>b.score-a.score);localStorage.setItem('aru_lb',JSON.stringify(lb));}catch(e){}}
+function renderLBData(lb,id){var el=document.getElementById(id);if(!el)return;if(!lb.length){el.innerHTML='<div style="color:#888;text-align:center;padding:14px;font-size:13px;">No entries yet.</div>';return;}var ll=document.getElementById('landLB');if(ll)ll.style.display='block';el.innerHTML=lb.slice(0,10).map((s,i)=>'<div class="lb-row '+(s.name===ST.name?'me':'')+'"><div class="lb-rank">'+(['🥇','🥈','🥉'][i]||i+1)+'</div><div class="lb-name">'+esc(s.name)+(s.name===ST.name?' (You)':'')+'</div><div class="lb-mod">Mod '+s.module+'</div><div class="lb-score">'+Math.round(s.score)+'pts</div></div>').join('');}
+function renderLB(id){try{var lb=JSON.parse(localStorage.getItem('aru_lb')||'[]');lb.sort((a,b)=>b.score-a.score);renderLBData(lb,id);}catch(e){}}
+function startTimer(){ST.startTime=Date.now();ST.timerInt=setInterval(function(){var rem=Math.max(0,3600-Math.floor((Date.now()-ST.startTime)/1000));var m=Math.floor(rem/60),s=rem%60;var el=document.getElementById('timerEl');if(el){el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');el.className='htimer'+(rem<600?' warn':'')+(rem<300?' danger':'');}if(rem===0){clearInterval(ST.timerInt);alert('⏱ Time up! Score: '+Math.round(ST.totalScore)+'/500');nextModule(ST.curModule,true);}saveLB();try{var n=localStorage.getItem('aru_nudge');if(n){var d=JSON.parse(n);if(d.t>(Date.now()-8000))showNudge();}}catch(e){}},1000);}
+function showNudge(){var el=document.getElementById('nudge');el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
+function popPts(p){if(p<=0)return;var el=document.getElementById('ptsPop');el.textContent='+'+Math.round(p)+'pts';el.style.opacity='1';el.style.transform='translateY(0)';el.style.transition='none';setTimeout(()=>{el.style.transition='opacity 1s,transform 1s';el.style.opacity='0';el.style.transform='translateY(-30px)';},50);}
+function startSession(){var inp=document.getElementById('nameIn');var name=(inp.value||'').trim();if(!name||name.length<2){document.getElementById('nameErr').style.display='block';inp.focus();return;}document.getElementById('nameErr').style.display='none';ST.name=name;document.getElementById('badgeEl').textContent=name.split(' ')[0];document.getElementById('appHeader').style.display='flex';document.getElementById('progressBar').style.display='block';buildSessionSets();saveLB();startTimer();goScreen('m1');updateProg(1);initM1();}
+function buildSessionSets(){SESSION.m1Items=pickFromZones(M1_BANK,3);var s1i=pick(M2S1_BANK.internal,4);var s1e=pick(M2S1_BANK.external,8);SESSION.m2s1Items=shuffle([...s1i.map(i=>({...i,zone:'internal'})),...s1e.map(i=>({...i,zone:'external'}))]);SESSION.m2s2Items=shuffle([...pick(M2S2_BANK.short,3).map(i=>({...i,zone:'short'})),...pick(M2S2_BANK.medium,3).map(i=>({...i,zone:'medium'})),...pick(M2S2_BANK.long,3).map(i=>({...i,zone:'long'}))]);SESSION.m4aItems=shuffle([...pick(M4A_BANK.primary,3).map(i=>({...i,zone:'primary'})),...pick(M4A_BANK.secondary,3).map(i=>({...i,zone:'secondary'}))]);SESSION.m4bItems=pick(M4B_BANK,6);SESSION.m4cItem=pick(M4C_BANK,1)[0];SESSION.m5Item=pick(M5_BANK,1)[0];SESSION.tfItems=pick(TF_BANK,8);}
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));var el=document.getElementById('s-'+id);if(el)el.classList.add('active');window.scrollTo(0,0);}
+function updateProg(n){ST.curModule=n;document.getElementById('pfill').style.width=(((n-1)/5)*100)+'%';for(var i=0;i<5;i++){var l=document.getElementById('pl'+i);l.className='plabel'+(i<n-1?' done':i===n-1?' cur':'');}saveLB();}
+function nextModule(n,forced){if(n<5){var nx=n+1;goScreen('m'+nx);updateProg(nx);if(nx===2)initM2();else if(nx===3)initM3();else if(nx===4)initM4();else if(nx===5)initM5();}else{ST.completed=true;clearInterval(ST.timerInt);saveLB();showFinal();}}
+function addPts(mod,pts){var cap=100;var ok=Math.min(pts,cap-ST.modScores[mod-1]);if(ok<=0)return;ST.modScores[mod-1]=Math.round((ST.modScores[mod-1]+ok)*100)/100;ST.totalScore=Math.round((ST.totalScore+ok)*100)/100;ST.lastAct=Date.now();var el=document.getElementById('m'+mod+'ScoreEl');if(el)el.textContent=Math.round(ST.modScores[mod-1])+' / 100';popPts(ok);saveLB();}
+function makeCard(item,poolId,modKey){var el=document.createElement('div');el.className='dcard';el.textContent=item.text;el.id='card-'+modKey+'-'+item.id;el.dataset.cid=item.id;el.dataset.cmod=modKey;el.onclick=()=>selectCard(item.id,modKey,el);document.getElementById(poolId).appendChild(el);}
+function selectCard(id,mod,el){if(el.classList.contains('placed-correct')||el.classList.contains('placed-revealed'))return;if(selId){var p=document.getElementById('card-'+selMod+'-'+selId);if(p)p.classList.remove('selected-card');}if(selId===id&&selMod===mod){selId=null;selMod=null;return;}selId=id;selMod=mod;el.classList.add('selected-card');document.querySelectorAll('.dzone').forEach(z=>z.classList.add('hover-active'));ST.lastAct=Date.now();}
+function zoneClick(mod,zone){if(!selId||selMod!==mod){document.querySelectorAll('.dzone').forEach(z=>{z.style.borderColor='#c9a84c';setTimeout(()=>z.style.borderColor='',600);});return;}document.querySelectorAll('.dzone').forEach(z=>z.classList.remove('hover-active'));var iid=selId;var cel=document.getElementById('card-'+mod+'-'+iid);if(cel)cel.classList.remove('selected-card');selId=null;selMod=null;placeCard(mod,iid,zone);}
+function placeCard(mod,itemId,zone){var items,fb,sm,mp,oac,rl,rb;if(mod==='m1'){items=SESSION.m1Items;sm=1;mp=8;fb='m1FB';oac=m1Complete;rl='m1ReviewList';rb='m1Review';}else if(mod==='m2s1'){items=SESSION.m2s1Items;sm=2;mp=5;fb='m2s1FB';oac=m2s1Complete;rl='m2s1ReviewList';rb='m2s1Review';}else if(mod==='m2s2'){items=SESSION.m2s2Items;sm=2;mp=5;fb='m2s2FB';oac=m2s2Complete;rl='m2s2ReviewList';rb='m2s2Review';}else if(mod==='m4'){items=SESSION.m4aItems;sm=4;mp=10;fb='m4aFB';oac=m4aComplete;rl='m4aReviewList';rb='m4aReview';}
+var item=items.find(i=>i.id===itemId);if(!item)return;var att=incAtt(mod+'-'+itemId);var cel=document.getElementById('card-'+mod+'-'+itemId);var pts=calcPoints(att,mp);
+if(item.zone===zone){if(cel){cel.classList.remove('selected-card');cel.classList.add('placed-correct');}var zi=document.getElementById('zi-'+mod+'-'+zone);if(zi&&cel)zi.appendChild(cel);addPts(sm,pts);var al=att===1?'🥇 1st!':att===2?'✅ 2nd':'✅ 3rd';showFB(fb,'ok','✅ Correct! "'+item.text+'" ('+Math.round(pts)+' pts '+al+')');checkAllPlaced(mod,items,oac);}else{if(cel){cel.classList.add('placed-wrong');setTimeout(()=>cel.classList.remove('placed-wrong'),600);}if(att===1)showFB(fb,'err','❌ Not quite. Try a different category. (2nd = '+Math.round(mp*.5)+' pts)');else if(att===2)showFB(fb,'err','❌ Still not right. Last attempt for '+Math.round(mp*.25)+' pts!');else if(att>=3){if(cel){cel.classList.remove('selected-card');cel.classList.add('placed-revealed');}var czi=document.getElementById('zi-'+mod+'-'+item.zone);if(czi&&cel)czi.appendChild(cel);showFB(fb,'warn','💡 Revealed: "'+item.text+'" → <strong>'+item.zone.replace(/_/g,' ')+'</strong>. No points.');var rle=document.getElementById(rl);var rbe=document.getElementById(rb);if(rle){var d=document.createElement('div');d.className='review-item';d.innerHTML='⚠️ <strong>"'+esc(item.text)+'"</strong> → '+item.zone.replace(/_/g,' ');rle.appendChild(d);}if(rbe)rbe.classList.add('show');checkAllPlaced(mod,items,oac);}}}
+function checkAllPlaced(mod,items,cb){if(items.every(i=>{var c=document.getElementById('card-'+mod+'-'+i.id);return c&&(c.classList.contains('placed-correct')||c.classList.contains('placed-revealed'));}))if(cb)cb();}
+function showFB(id,type,msg){var el=document.getElementById(id);if(!el)return;el.className='fb fb-'+(type==='ok'?'ok':type==='warn'?'warn':'err')+' show';el.innerHTML='<span></span><span>'+msg+'</span>';}
+function initM1(){var p=document.getElementById('m1Pool');p.innerHTML='';SESSION.m1Items.forEach(i=>makeCard(i,'m1Pool','m1'));}
+function m1Complete(){var rev=SESSION.m1Items.filter(i=>getAtt('m1-'+i.id)>=4);if(!rev.length)addPts(1,4);showFB('m1FB','ok','🎉 All placed! '+(rev.length?'Review flagged items above.':'Perfect round — bonus +4 pts!'));document.getElementById('m1Next').classList.remove('btn-hidden');}
+function initM2(){var p=document.getElementById('m2Pool1');p.innerHTML='';SESSION.m2s1Items.forEach(i=>makeCard(i,'m2Pool1','m2s1'));}
+function m2s1Complete(){showFB('m2s1FB','ok','✅ Stage 1 done! Now sort by duration below.');document.getElementById('m2StageEl').textContent='Stage 2 of 2';setTimeout(()=>{document.getElementById('m2s2').style.display='block';var p=document.getElementById('m2Pool2');p.innerHTML='';SESSION.m2s2Items.forEach(i=>makeCard(i,'m2Pool2','m2s2'));},700);}
+function m2s2Complete(){showFB('m2s2FB','ok','🎉 Both stages complete!');document.getElementById('m2Next').classList.remove('btn-hidden');}
+var errFound=0,plAtts={interest:0,dividend:0,equity:0},selRow=null;
+function initM3(){errFound=0;plAtts={interest:0,dividend:0,equity:0};selRow=null;document.getElementById('errCt').textContent='0';document.getElementById('m3aReview').classList.remove('show');document.getElementById('m3aReviewList').innerHTML='';}
+function plRowClick(el){if(el.classList.contains('conf-err')||el.classList.contains('conf-ok'))return;var eid=el.dataset.eid;if(!PL_ERRORS[eid]){showFB('m3aFB','err','No error here — tap the rows marked ←');return;}document.querySelectorAll('.pl-row.sel-err').forEach(r=>r.classList.remove('sel-err'));el.classList.add('sel-err');selRow=eid;var err=PL_ERRORS[eid];var opts=shuffle([err.correct,...err.wrongs]);var eo=document.getElementById('errOpts');eo.className='err-opts show';eo.innerHTML='<strong style="width:100%;font-size:12px;color:#1a2744;">What is the error?</strong>'+opts.map(o=>'<button class="err-opt" onclick="checkErrFix(\''+eid+'\',\''+o.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\',this)">'+o+'</button>').join('');ST.lastAct=Date.now();}
+function checkErrFix(eid,chosen,btn){var err=PL_ERRORS[eid];plAtts[eid]=(plAtts[eid]||0)+1;var att=plAtts[eid];var rowEl=document.querySelector('.pl-row[data-eid="'+eid+'"]');var eo=document.getElementById('errOpts');var pts=calcPoints(att,15);if(chosen===err.correct){rowEl.classList.remove('sel-err');rowEl.classList.add('conf-err');errFound++;document.getElementById('errCt').textContent=errFound;eo.className='err-opts';selRow=null;addPts(3,pts);showFB('m3aFB','ok','✅ Correct! ('+Math.round(pts)+' pts) '+err.expl);if(errFound>=3)setTimeout(showTFPart,900);}else{btn.style.color='#c0392b';btn.style.borderColor='#c0392b';if(att===1)showFB('m3aFB','err','❌ Wrong. Try again (2nd = '+Math.round(15*.5)+' pts).');else if(att===2)showFB('m3aFB','err','❌ Still wrong. Last attempt for '+Math.round(15*.25)+' pts.');else{rowEl.classList.remove('sel-err');rowEl.classList.add('conf-err');errFound++;document.getElementById('errCt').textContent=errFound;eo.className='err-opts';showFB('m3aFB','warn','💡 Revealed: '+err.expl+' (0 pts)');var rle=document.getElementById('m3aReviewList');var rbe=document.getElementById('m3aReview');if(rle){var d=document.createElement('div');d.className='review-item';d.innerHTML='⚠️ <strong>'+rowEl.querySelector('span').textContent+'</strong> — '+esc(err.expl);rle.appendChild(d);}if(rbe)rbe.classList.add('show');if(errFound>=3)setTimeout(showTFPart,900);}}ST.lastAct=Date.now();}
+function showTFPart(){document.getElementById('m3PartEl').textContent='Part B';document.getElementById('m3pb').style.display='block';loadTF();}
+var tfAnswers=[],tfAttempts=[];
+function loadTF(){SESSION.tfItems=pick(TF_BANK,8);tfAnswers=new Array(8).fill(null);tfAttempts=[];document.getElementById('tfScore').textContent='0/8';document.getElementById('m3Retry').classList.add('btn-hidden');document.getElementById('m3bFB').className='fb';renderTF();}
+function renderTF(){document.getElementById('tfContainer').innerHTML=SESSION.tfItems.map((q,i)=>'<div class="tfq" id="tfq'+i+'"><div class="tfqtext">'+i+1+'. '+q.q+'</div><div style="font-size:11px;color:#999;margin-bottom:8px;">Attempts left: <span id="tfatt'+i+'">3</span> · Points: <span id="tfpts'+i+'">6</span></div><div class="tfbtns"><button class="tfbtn tfbtn-t" onclick="answerTF('+i+',true,this)">TRUE</button><button class="tfbtn tfbtn-f" onclick="answerTF('+i+',false,this)">FALSE</button></div><div class="hint-box" id="tfh'+i+'"><span>💡</span><span>'+q.expl+'</span></div></div>').join('');}
+function answerTF(i,ans,btn){if(!tfAttempts[i])tfAttempts[i]=0;if(tfAnswers[i]===true)return;var q=SESSION.tfItems[i];tfAttempts[i]++;var att=tfAttempts[i];var pts=calcPoints(att,6);var qEl=document.getElementById('tfq'+i);var ae=document.getElementById('tfatt'+i);var pe=document.getElementById('tfpts'+i);if(ans===q.ans){tfAnswers[i]=true;btn.classList.add('sel-ok');qEl.classList.add('ok');qEl.querySelectorAll('.tfbtn').forEach(b=>b.disabled=true);addPts(3,pts);document.getElementById('tfh'+i).classList.add('show');showFB('m3bFB','ok','✅ Correct! +'+Math.round(pts)+' pts');}else{btn.classList.add('sel-err');setTimeout(()=>btn.classList.remove('sel-err'),500);if(att>=3){qEl.querySelectorAll('.tfbtn').forEach(b=>{b.disabled=true;if((b.classList.contains('tfbtn-t')&&q.ans===true)||(b.classList.contains('tfbtn-f')&&q.ans===false))b.classList.add('sel-ok');});tfAnswers[i]=false;qEl.classList.add('wrong');document.getElementById('tfh'+i).classList.add('show');if(ae)ae.textContent='0';if(pe)pe.textContent='0';showFB('m3bFB','warn','💡 Revealed: '+q.expl+' (0 pts)');}else{var rem=3-att;var np=calcPoints(att+1,6);if(ae)ae.textContent=rem;if(pe)pe.textContent=Math.round(np);showFB('m3bFB','err','❌ Incorrect. '+rem+' attempt'+(rem>1?'s':'')+' left.');}}var answered=tfAnswers.filter(a=>a!==null).length;document.getElementById('tfScore').textContent=tfAnswers.filter(a=>a===true).length+'/'+answered;if(answered===8)checkTFDone();ST.lastAct=Date.now();}
+function checkTFDone(){var c=tfAnswers.filter(a=>a===true).length;if(c>=6){showFB('m3bFB','ok','🎉 '+c+'/8 — gate passed!');document.getElementById('m3Next').classList.remove('btn-hidden');}else{showFB('m3bFB','err','❌ '+c+'/8 — need 6/8. Retry below.');document.getElementById('m3Retry').classList.remove('btn-hidden');tfAttempts=[];}}
+function initM4(){var p=document.getElementById('m4Pool');p.innerHTML='';SESSION.m4aItems.forEach(i=>makeCard(i,'m4Pool','m4'));}
+function m4aComplete(){showFB('m4aFB','ok','✅ All classified! Moving to Part B.');document.getElementById('m4PartEl').textContent='Part B';setTimeout(()=>{document.getElementById('m4pb').style.display='block';initMatch();},700);}
+var matchSel=null,matchDone=0,matchAtts={};
+function initMatch(){var te=document.getElementById('mTerms');var de=document.getElementById('mDefs');te.innerHTML='';de.innerHTML='';matchDone=0;matchSel=null;matchAtts={};SESSION.m4bItems.forEach(t=>{var el=document.createElement('div');el.className='mterm';el.textContent=t.term;el.dataset.mid=t.id;el.onclick=()=>matchTermClick(el);te.appendChild(el);matchAtts[t.id]=0;});shuffle(SESSION.m4bItems).forEach(t=>{var el=document.createElement('div');el.className='mdef';el.textContent=t.def;el.dataset.mid=t.id;el.onclick=()=>matchDefClick(el);de.appendChild(el);});}
+function matchTermClick(el){if(el.classList.contains('matched')||el.classList.contains('match-revealed'))return;document.querySelectorAll('.mterm.sel').forEach(e=>e.classList.remove('sel'));if(matchSel===el.dataset.mid){matchSel=null;return;}el.classList.add('sel');matchSel=el.dataset.mid;}
+function matchDefClick(el){if(!matchSel)return;if(el.classList.contains('matched')||el.classList.contains('match-revealed'))return;var tid=matchSel;var did=el.dataset.mid;matchAtts[tid]=(matchAtts[tid]||0)+1;var att=matchAtts[tid];var pts=calcPoints(att,10);var te=document.querySelector('.mterm[data-mid="'+tid+'"]');if(tid===did){te.classList.remove('sel');te.classList.add('matched');el.classList.add('matched');matchSel=null;addPts(4,pts);matchDone++;showFB('m4bFB','ok','✅ Match! +'+Math.round(pts)+' pts ('+matchDone+'/'+SESSION.m4bItems.length+')');if(matchDone===SESSION.m4bItems.length)setTimeout(()=>{document.getElementById('m4PartEl').textContent='Part C';document.getElementById('m4pc').style.display='block';initScenario();},600);}else{te.classList.add('match-err');el.classList.add('match-err');setTimeout(()=>{te.classList.remove('match-err','sel');el.classList.remove('match-err');matchSel=null;},600);if(att>=3){var cd=document.querySelector('.mdef[data-mid="'+tid+'"]');te.classList.remove('sel');te.classList.add('match-revealed');if(cd)cd.classList.add('match-revealed');matchDone++;matchSel=null;showFB('m4bFB','warn','💡 Revealed: "'+SESSION.m4bItems.find(t=>t.id===tid)?.term+'" (0 pts).');var rle=document.getElementById('m4bReviewList');var rbe=document.getElementById('m4bReview');if(rle){var t=SESSION.m4bItems.find(t=>t.id===tid);var d=document.createElement('div');d.className='review-item';d.innerHTML='⚠️ <strong>'+esc(t.term)+'</strong>: '+esc(t.def);rle.appendChild(d);}if(rbe)rbe.classList.add('show');if(matchDone===SESSION.m4bItems.length)setTimeout(()=>{document.getElementById('m4PartEl').textContent='Part C';document.getElementById('m4pc').style.display='block';initScenario();},600);}else{var rem=3-att;var np=calcPoints(att+1,10);showFB('m4bFB','err','❌ No match. '+rem+' attempt'+(rem>1?'s':'')+' left — next correct = '+Math.round(np)+' pts.');}}ST.lastAct=Date.now();}
+var scenAtts=0;
+function initScenario(){scenAtts=0;var sc=SESSION.m4cItem;document.getElementById('m4cQ').innerHTML=sc.q;var opts=shuffle([{text:sc.correct,correct:true},...sc.wrongs.map(w=>({text:w,correct:false}))]);document.getElementById('m4cOpts').innerHTML=opts.map((o,i)=>'<button class="sopt" onclick="checkScenario(this,'+o.correct+')">'+esc(o.text)+'</button>').join('');}
+function checkScenario(btn,correct){scenAtts++;var pts=calcPoints(scenAtts,20);var opts=document.querySelectorAll('#m4cOpts .sopt');if(correct){btn.classList.add('ok');opts.forEach(o=>o.disabled=true);addPts(4,pts);showFB('m4cFB','ok','✅ Correct! +'+Math.round(pts)+' pts. '+SESSION.m4cItem.expl);document.getElementById('m4Next').classList.remove('btn-hidden');}else{btn.classList.add('err');setTimeout(()=>btn.classList.remove('err'),700);if(scenAtts>=3){opts.forEach(o=>o.disabled=true);showFB('m4cFB','warn','💡 '+SESSION.m4cItem.expl+' (0 pts)');document.getElementById('m4Next').classList.remove('btn-hidden');}else{var rem=3-scenAtts;showFB('m4cFB','err','❌ Not quite. '+rem+' attempt'+(rem>1?'s':'')+' left.');}}ST.lastAct=Date.now();}
+var calcAtts={1:0,2:0,3:0,4:0},stepsOk=0,m5Gross,m5Fee,m5Net;
+function initM5(){stepsOk=0;calcAtts={1:0,2:0,3:0,4:0};var cs=SESSION.m5Item;m5Gross=cs.shares*cs.price;m5Fee=m5Gross*(cs.feePercent/100);m5Net=m5Gross-m5Fee-cs.otherExp;var c=cs.currency;document.getElementById('c1curr').textContent=c;document.getElementById('c2curr').textContent=c;document.getElementById('c3curr').textContent=c;document.getElementById('m5CaseData').innerHTML='<strong>📋 '+esc(cs.label)+' IPO — Case Study Data</strong><br>Shares issued: <strong>'+cs.shares.toLocaleString()+'</strong> &nbsp;|&nbsp; IPO offer price: <strong>'+c+cs.price+'/share</strong> &nbsp;|&nbsp; Underwriting fee: <strong>'+cs.feePercent+'%</strong> &nbsp;|&nbsp; Other expenses: <strong>'+c+cs.otherExp.toLocaleString()+'</strong>';var h2=document.getElementById('cs2').querySelector('div[style*="color:#666"]');if(h2)h2.textContent='Multiply your gross proceeds by '+cs.feePercent+'%.';var h3=document.getElementById('cs3').querySelector('div[style*="color:#666"]');if(h3)h3.textContent='Other expenses = '+c+cs.otherExp.toLocaleString()+'. Type your answer.';var s4c='It is the actual cash '+cs.label+' receives to fund expansion after paying all IPO costs.';var s4opts=shuffle([{text:s4c,correct:true},{text:'It is the total revenue '+cs.label+' will earn from product sales after listing.',correct:false},{text:'It is the amount investors receive as dividends in the first year.',correct:false},{text:'It is the market capitalisation of '+cs.label+' immediately after listing.',correct:false}]);document.getElementById('c4Opts').innerHTML=s4opts.map(o=>'<button class="sopt" onclick="checkStep4(this,'+o.correct+')">'+esc(o.text)+'</button>').join('');['cs1','cs2','cs3','cs4'].forEach((id,idx)=>{var el=document.getElementById(id);el.className='calc-step'+(idx===0?' active-step':' locked');});['c1in','c2in','c3in'].forEach(id=>{var el=document.getElementById(id);if(el){el.value='';el.className='cinput';}});['c1FB','c2FB','c3FB','c4FB'].forEach(id=>{var el=document.getElementById(id);if(el)el.className='fb';});}
+function checkCalc(step){var input=document.getElementById('c'+step+'in');var val=parseFloat(input.value);if(!val||isNaN(val)){showFB('c'+step+'FB','err','⚠️ Please type a number.');return;}calcAtts[step]++;var att=calcAtts[step];var answers={1:m5Gross,2:m5Fee,3:m5Net};var correct=answers[step];var tol=Math.max(1,correct*.005);var pts=calcPoints(att,25);if(Math.abs(val-correct)<=tol){input.classList.add('ok');addPts(5,pts);stepsOk++;document.getElementById('m5StepsEl').textContent=stepsOk+' / 4';document.getElementById('cs'+step).classList.replace('active-step','done-step');var cs=SESSION.m5Item;var labels={1:'✅ Gross Proceeds = '+cs.currency+m5Gross.toLocaleString(),2:'✅ Underwriting Fee = '+cs.currency+m5Fee.toLocaleString(),3:'✅ Net Proceeds = '+cs.currency+m5Net.toLocaleString()};showFB('c'+step+'FB','ok',labels[step]+' (+'+Math.round(pts)+' pts)');if(step<3){var ns=document.getElementById('cs'+(step+1));ns.classList.remove('locked');ns.classList.add('active-step');}else{var s4=document.getElementById('cs4');s4.classList.remove('locked');s4.classList.add('active-step');}}else{input.classList.add('err');setTimeout(()=>input.classList.remove('err'),700);if(att>=3){input.value=correct;input.classList.remove('err');input.classList.add('ok');document.getElementById('cs'+step).classList.replace('active-step','done-step');stepsOk++;document.getElementById('m5StepsEl').textContent=stepsOk+' / 4';var cs=SESSION.m5Item;var revs={1:'💡 Answer: '+cs.currency+m5Gross.toLocaleString(),2:'💡 Answer: '+cs.currency+m5Fee.toLocaleString(),3:'💡 Answer: '+cs.currency+m5Net.toLocaleString()};showFB('c'+step+'FB','warn',revs[step]+' (0 pts)');if(step<3){var ns=document.getElementById('cs'+(step+1));ns.classList.remove('locked');ns.classList.add('active-step');}else{var s4=document.getElementById('cs4');s4.classList.remove('locked');s4.classList.add('active-step');}}else{var np=calcPoints(att+1,25);showFB('c'+step+'FB','err','❌ Incorrect. '+(3-att)+' attempt'+(att<2?'s':'')+' left. Next correct = '+Math.round(np)+' pts.');}}ST.lastAct=Date.now();}
+var s4Atts=0;
+function checkStep4(btn,correct){s4Atts++;var pts=calcPoints(s4Atts,25);var opts=document.querySelectorAll('#c4Opts .sopt');if(correct){btn.classList.add('ok');opts.forEach(o=>o.disabled=true);addPts(5,pts);stepsOk++;document.getElementById('m5StepsEl').textContent='4 / 4';document.getElementById('cs4').classList.replace('active-step','done-step');showFB('c4FB','ok','✅ Correct! +'+Math.round(pts)+' pts.');document.getElementById('m5Next').classList.remove('btn-hidden');}else{btn.classList.add('err');setTimeout(()=>btn.classList.remove('err'),600);if(s4Atts>=3){opts.forEach(o=>o.disabled=true);showFB('c4FB','warn','💡 Net proceeds = cash the company keeps after all IPO costs. (0 pts)');document.getElementById('m5Next').classList.remove('btn-hidden');}else showFB('c4FB','err','❌ Not quite. '+(3-s4Atts)+' attempt'+(s4Atts<2?'s':'')+' left.');}ST.lastAct=Date.now();}
+function showFinal(){goScreen('final');document.getElementById('certName').textContent=ST.name;document.getElementById('certScore').textContent=Math.round(ST.totalScore);var names=['Financial System','Sources of Finance','Debt vs Equity','IPO & Markets','IPO Calcs'];document.getElementById('finalMods').innerHTML=ST.modScores.map((s,i)=>'<div class="fmod"><div class="fmod-n">Mod '+(i+1)+'</div><div style="font-size:9px;color:#aaa;margin-bottom:4px;">'+names[i]+'</div><div class="fmod-s">'+Math.round(s)+'</div><div class="fmod-m">/ 100</div></div>').join('');renderLB('finalLBBody');document.getElementById('pfill').style.width='100%';for(var i=0;i<5;i++)document.getElementById('pl'+i).className='plabel done';}
+function initDash(){document.getElementById('appHeader').style.display='none';document.getElementById('progressBar').style.display='none';document.querySelectorAll('.screen').forEach(s=>s.style.display='none');document.getElementById('dashView').style.display='block';refreshDash();}
+function refreshDash(){var now=Date.now();var fiveMin=300000;var render=function(lb){var total=lb.length,active=0,done=0,stall=0;lb.forEach(s=>{if(s.completed)done++;else if(now-s.lastUpdate<fiveMin)active++;else stall++;});document.getElementById('ds-total').textContent=total;document.getElementById('ds-active').textContent=active;document.getElementById('ds-done').textContent=done;document.getElementById('ds-stall').textContent=stall;var tbody=document.getElementById('dashBody');if(!lb.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#888;padding:24px;">No students yet.</td></tr>';return;}tbody.innerHTML=lb.map((s,i)=>{var isStall=!s.completed&&(now-s.lastUpdate>fiveMin);var m=Math.floor(s.time/60),sec=s.time%60;return'<tr class="'+(isStall?'stall':'')+'"><td>'+(i+1)+'</td><td><strong>'+esc(s.name)+'</strong></td><td><span class="mbadge">Module '+s.module+'</span></td><td><strong>'+Math.round(s.score)+'</strong></td><td>'+m+'m '+sec+'s</td><td>'+(s.completed?'<span style="color:#1e8449;font-weight:700;">✅ Done</span>':isStall?'<span class="sflag">⚠ Stalled</span>':'<span style="color:#2980b9;font-weight:600;">🔵 Active</span>')+'</td></tr>';}).join('');};try{var lb=JSON.parse(localStorage.getItem('aru_lb')||'[]');lb.sort((a,b)=>b.score-a.score);render(lb);}catch(e){}}
+function sendNudge(){try{localStorage.setItem('aru_nudge',JSON.stringify({t:Date.now()}));}catch(e){}alert('📣 Nudge sent!');}
+window.addEventListener('DOMContentLoaded',function(){if(location.search.includes('lecturer')){initDash();setInterval(refreshDash,5000);return;}try{var lb=JSON.parse(localStorage.getItem('aru_lb')||'[]');if(lb.length){document.getElementById('landLB').style.display='block';renderLB('landLBBody');}}catch(e){}document.getElementById('nameIn').addEventListener('keydown',function(e){if(e.key==='Enter')startSession();});});
+</script>
+
+</body>
+</html>
